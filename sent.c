@@ -107,6 +107,7 @@ static void xdraw(void);
 static void xhints(void);
 static void xinit(void);
 static void xloadfonts(void);
+static void togglescm();
 
 static void bpress(XEvent *);
 static void cmessage(XEvent *);
@@ -619,6 +620,22 @@ xinit(void)
 	XMapWindow(xw.dpy, xw.win);
 	xhints();
 	XSync(xw.dpy, False);
+}
+
+void
+togglescm(void)
+{
+    if (use_inverted_colors) {
+        free(sc);
+        sc = drw_scm_create(d, colors, 2);
+        use_inverted_colors = 0;
+    } else {
+        sc = drw_scm_create(d, inverted_colors, 2);
+        use_inverted_colors = 1;
+    }
+    drw_setscheme(d, sc);
+       XSetWindowBackground(xw.dpy, xw.win, sc[ColBg].pixel);
+    xdraw();
 }
 
 void
