@@ -18,6 +18,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xft/Xft.h>
+#include <X11/Xresource.h>
 
 #include "arg.h"
 #include "util.h"
@@ -107,6 +108,7 @@ static void xdraw(void);
 static void xhints(void);
 static void xinit(void);
 static void xloadfonts(void);
+static void xresources(void);
 static void togglescm();
 
 static void bpress(XEvent *);
@@ -582,6 +584,7 @@ xinit(void)
 
 	if (!(xw.dpy = XOpenDisplay(NULL)))
 		die("sent: Unable to open display");
+	xresources();
 	xw.scr = XDefaultScreen(xw.dpy);
 	xw.vis = XDefaultVisual(xw.dpy, xw.scr);
 	resize(DisplayWidth(xw.dpy, xw.scr), DisplayHeight(xw.dpy, xw.scr));
@@ -620,6 +623,40 @@ xinit(void)
 	XMapWindow(xw.dpy, xw.win);
 	xhints();
 	XSync(xw.dpy, False);
+}
+
+void
+xresources(void) {
+	XrmInitialize();
+	char* xrm;
+	if ((xrm = XResourceManagerString(xw.dpy))) {
+		char *type;
+		XrmDatabase xdb = XrmGetStringDatabase(xrm);
+		XrmValue xval;
+		if (XrmGetResource(xdb, "sent.font", "*", &type, &xval)) {
+			int fc = 0;
+			char *token;
+			char *delimiter = ",";
+			char *font_string = (char *)xval.addr;
+
+			// Tokenize the font names and store them in the array
+			token = strtok(font_string, delimiter);
+			while (token != NULL && fc < MAXFONTS) {
+				fontfallbacks[fc] = strdup(token);
+				fc++;
+				token = strtok(NULL, delimiter);
+			}
+		}
+		if (XrmGetResource(xdb, "sent.foreground", "*", &type, &xval)) {
+			colors[0] = strdup(xval.addr);
+			inverted_colors[1] = strdup(xval.addr);
+		}
+		if (XrmGetResource(xdb, "sent.background", "*", &type, &xval)) {
+			colors[1] = strdup(xval.addr);
+			inverted_colors[0] = strdup(xval.addr);
+		}
+		XrmDestroyDatabase(xdb);
+	}
 }
 
 void

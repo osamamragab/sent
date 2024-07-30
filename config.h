@@ -1,11 +1,12 @@
 /* See LICENSE file for copyright and license details. */
 
-static char *fontfallbacks[] = {
+#define MAXFONTS 10
+static char *fontfallbacks[MAXFONTS] = {
 	"dejavu sans",
 	"roboto",
 	"ubuntu",
 };
-#define NUMFONTSCALES 13
+#define NUMFONTSCALES 42
 #define FONTSZ(x) ((int)(10.0 * powf(1.1288, (x)))) /* x in [0, NUMFONTSCALES-1] */
 
 static const char *colors[] = {
