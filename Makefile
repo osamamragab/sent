@@ -14,9 +14,6 @@ options:
 	@echo "LDFLAGS  = ${LDFLAGS}"
 	@echo "CC       = ${CC}"
 
-config.h:
-	cp config.def.h config.h
-
 .c.o:
 	${CC} -c ${CFLAGS} $<
 
@@ -33,7 +30,7 @@ clean:
 
 dist: clean
 	mkdir -p sent-${VERSION}
-	cp -R LICENSE Makefile config.mk config.def.h ${SRC} sent-${VERSION}
+	cp -R LICENSE Makefile config.mk config.h ${SRC} sent-${VERSION}
 	tar -cf sent-${VERSION}.tar sent-${VERSION}
 	gzip sent-${VERSION}.tar
 	rm -rf sent-${VERSION}
